@@ -18,6 +18,9 @@ int main (void)
 	int n = N;	
 	double sum = 0;
 	double start, total_time, norm;
+/*
+ create a well-conditioned random R
+*/
 	for ( int i = 0; i < n; i ++)
 	{
 		for ( int j = i; j < n; j ++)
@@ -33,10 +36,16 @@ int main (void)
 		R[i][i] += sum;
 	}
 //	print_matrix(n, R);
+/*
+ compute the inverse of the upper triangular matrix recursively
+*/
 	start = omp_get_wtime();
 	compute_inverse(0, 0, n);
 	total_time = omp_get_wtime() - start; 
 //	print_matrix(n, Ri);
+/*
+ calculate the error in computing inverse
+*/
 	norm = evaluate(n);
 	printf("Error in computing inverse: %e, time (sec) = %8.4f\n", norm, total_time);
 		
@@ -48,6 +57,9 @@ int main (void)
 void compute_inverse(int r0, int c0, int n)
 {
 	if (n == 1)
+/*
+ base case of recursion
+*/ 
 	{
 		if (R[r0][c0] > 0)
 			Ri[r0][c0] = 1/R[r0][c0];
@@ -55,12 +67,18 @@ void compute_inverse(int r0, int c0, int n)
 	else
 	{
 		int n1 = n/2;
+/*
+ compute the inverse of the two diagonal blocks
+*/
 		compute_inverse(r0, c0, n1);
 		compute_inverse(r0 + n1, c0 + n1, n1);	
 		double M[n1][n1];
 		int i, j, k;
-	  # pragma omp parallel shared( M, R, Ri, r0, c0, n1) private (i, j, k)		
-	  { 
+/*
+ compute the off-diagonal block by matrix multiplication
+*/
+		# pragma omp parallel shared( M, R, Ri, r0, c0, n1) private (i, j, k)		
+		{ 
 		# pragma omp for	
 		for ( i = 0; i < n1; i ++)
 		{
@@ -92,6 +110,10 @@ void compute_inverse(int r0, int c0, int n)
 
 double evaluate(int n)
 {
+/*
+ compute the product of R and Ri
+ compare with identity matrix
+*/
 	double I[n][n];
 	double error = 0.0;
 	for (int i = 0; i < n; i ++)
