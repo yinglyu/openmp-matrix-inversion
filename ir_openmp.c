@@ -2,8 +2,8 @@
 # include <stdio.h>
 # include <math.h>
 # include <omp.h>
-double R[16][16];
-double Ri[16][16];
+double R[1024][1024];
+double Ri[1024][1024];
 
 void print_matrix(int n, double M[n][n]);
 
@@ -13,8 +13,9 @@ double evaluate(int n);
 
 int main (void)
 {
-	int n = 16;	
+	int n = 1024;	
 	double sum = 0;
+	double start, total_time, norm;
 	for ( int i = 0; i < n; i ++)
 	{
 		for ( int j = i; j < n; j ++)
@@ -29,10 +30,12 @@ int main (void)
 		R[i][i] += sum;
 	}
 //	print_matrix(n, R);
+	start = omp_get_wtime();
 	compute_inverse(0, 0, n);
+	total_time = omp_get_wtime() - start; 
 //	print_matrix(n, Ri);
-	double norm = evaluate(n);
-	printf("Error in computing inverse: %e\n",norm);
+	norm = evaluate(n);
+	printf("Error in computing inverse: %e, time (sec) = %8.4f\n", norm, total_time);
 		
 //	print_matrix(n, I);
 	
@@ -52,29 +55,35 @@ void compute_inverse(int r0, int c0, int n)
 		compute_inverse(r0, c0, n1);
 		compute_inverse(r0 + n1, c0 + n1, n1);	
 		double M[n1][n1];
-		for ( int i = 0; i < n1; i ++)
+		int i, j, k;
+	  # pragma omp parallel shared( M, R, Ri, r0, c0, n1) private (i, j, k)		
+	  { 
+		# pragma omp for	
+		for ( i = 0; i < n1; i ++)
 		{
-			for (int j = 0; j < n1; j ++)
+			for ( j = 0; j < n1; j ++)
 			{
 				M[i][j] = 0.0;
-				for ( int k = 0; k < n1; k ++)
+				for ( k = 0; k < n1; k ++)
 				{
 					M[i][j] = M[i][j] - Ri[r0 + i][c0 + k] * R[r0 + k][c0 + n1 + j];
 				}
 			}
 				
 		}
-        for ( int i = 0; i < n1; i ++)
+		# pragma omp for
+        for ( i = 0; i < n1; i ++)
 		{
-			for (int j = 0; j < n1; j ++)
+			for ( j = 0; j < n1; j ++)
 			{
 				Ri[r0 + i][c0 + n1 + j] = 0.0;
-				for ( int k = 0; k < n1; k ++)
+				for ( k = 0; k < n1; k ++)
 				{
 					Ri[r0 + i][c0 + n1 + j] = Ri[r0 + i][c0 + n1 + j] + M[i][k] * Ri[r0 + n1 + k][c0 + n1 + j];
 				}
 			}
 		}
+	  }
 	}			
 }
 
