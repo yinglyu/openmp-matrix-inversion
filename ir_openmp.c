@@ -3,8 +3,9 @@
 # include <time.h>
 # include <math.h>
 # include <omp.h>
-double R[1024][1024];
-double Ri[1024][1024];
+const int N = 2048;
+double R[N][N];
+double Ri[N][N];
 
 void print_matrix(int n, double M[n][n]);
 
@@ -14,7 +15,7 @@ double evaluate(int n);
 
 int main (void)
 {
-	int n = 1024;	
+	int n = N;	
 	double sum = 0;
 	double start, total_time, norm;
 	for ( int i = 0; i < n; i ++)
