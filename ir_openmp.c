@@ -1,5 +1,6 @@
 # include <stdlib.h>
 # include <stdio.h>
+# include <time.h>
 # include <math.h>
 # include <omp.h>
 double R[1024][1024];
@@ -20,6 +21,7 @@ int main (void)
 	{
 		for ( int j = i; j < n; j ++)
 		{
+			srand48(time(0));
 			R[i][j] = drand48();
 			sum += R[i][j];
 		}
