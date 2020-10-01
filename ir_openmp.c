@@ -74,8 +74,11 @@ void compute_inverse(int r0, int c0, int n)
 /*
  compute the inverse of the two diagonal blocks
 */
+		#pragma omp task
 		compute_inverse(r0, c0, n1);
+		#pragma omp task
 		compute_inverse(r0 + n1, c0 + n1, n1);	
+		#pragma omp taskwait
 		double M[n1][n1];
 		int i, j, k;
 /*
