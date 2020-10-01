@@ -83,7 +83,7 @@ void compute_inverse(int r0, int c0, int n)
 */
 		# pragma omp parallel shared( M, R, Ri, r0, c0, n1) private (i, j, k)		
 		{ 
-		# pragma omp for	
+		# pragma omp for collapse(2)	
 		for ( i = 0; i < n1; i ++)
 		{
 			for ( j = 0; j < n1; j ++)
@@ -96,7 +96,7 @@ void compute_inverse(int r0, int c0, int n)
 			}
 				
 		}
-		# pragma omp for
+		# pragma omp for collapse(2)
         for ( i = 0; i < n1; i ++)
 		{
 			for ( j = 0; j < n1; j ++)
