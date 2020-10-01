@@ -15,7 +15,7 @@ double evaluate(int n);
 
 int main (void)
 {
-	int n = N;	
+	int n = N, np;	
 	double sum = 0;
 	double start, total_time, norm;
 /*
@@ -47,7 +47,11 @@ int main (void)
  calculate the error in computing inverse
 */
 	norm = evaluate(n);
-	printf("Error in computing inverse: %e, time (sec) = %8.4f\n", norm, total_time);
+	#pragma omp parallel
+	{
+		np = omp_get_num_threads();
+	}
+	printf("n = %d, p = %d, error = %e, time (sec) = %8.4f\n", N, np, norm, total_time);
 		
 //	print_matrix(n, I);
 	
