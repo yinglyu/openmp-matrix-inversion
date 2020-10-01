@@ -81,7 +81,7 @@ void compute_inverse(int r0, int c0, int n)
 /*
  compute the off-diagonal block by matrix multiplication
 */
-		# pragma omp parallel shared( M, R, Ri, r0, c0, n1) private (i, j, k)		
+		# pragma omp parallel shared( M, R, Ri, r0, c0, n1) private (i, j, k) proc_bind(close)	
 		{ 
 		# pragma omp for collapse(2)	
 		for ( i = 0; i < n1; i ++)
